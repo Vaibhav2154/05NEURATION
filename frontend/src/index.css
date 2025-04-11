@@ -1,4 +1,5 @@
 /* Main Container Styles */
+
 .app-container, body {
   min-height: 100vh;
   background-image: linear-gradient(to bottom, #172554, #1e3a8a);
