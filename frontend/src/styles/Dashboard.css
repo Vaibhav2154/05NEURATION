@@ -39,3 +39,21 @@
 .profile-dropdown p {
   margin: 4px 0;
 }
+.sidebar-logo{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  width: 70px;
+  height: 70px;
+  margin-right: 0px;
+  
+}
+.sidebar-logo-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 180px;
+  height: 80px;
+  margin-bottom: 30px;
+}

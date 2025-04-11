@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import supabase from '../config/superbaseClient';
 import { useAuth } from '../components/authcontext';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import axios from 'axios';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  PieChart, Pie, Cell
+} from 'recharts';
 
 const Analytics = () => {
-  const { token } = useAuth();
+  const { user } = useAuth(); // Assumes useAuth gives you `user`
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,287 +16,158 @@ const Analytics = () => {
     paidInvoices: 0,
     pendingInvoices: 0,
     totalAmount: 0,
-    userStats: []
   });
 
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        const response = await axios.get('http://localhost:8081/api/invoices', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        setInvoices(response.data);
-        calculateStats(response.data);
+        const { data, error } = await supabase
+          .from('invoices')
+          .select('*')
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+        setInvoices(data);
+        calculateStats(data);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching invoices:', err);
+        console.error('Error fetching invoices:', err.message);
         setError('Failed to fetch invoice data');
         setLoading(false);
       }
     };
 
-    fetchInvoices();
-  }, [token]);
+    if (user?.id) fetchInvoices();
+  }, [user]);
 
-  const calculateStats = (invoicesData) => {
-    const totalInvoices = invoicesData.length;
-    const paidInvoices = invoicesData.filter(inv => inv.status === 'Paid').length;
-    const pendingInvoices = invoicesData.filter(inv => inv.status === 'Pending').length;
-    const totalAmount = invoicesData.reduce((sum, inv) => sum + inv.amount, 0);
-
-    // Calculate user stats
-    const userStatsMap = {};
-    invoicesData.forEach(inv => {
-      // Ensure we have user info
-      const userId = inv.userId || inv.user?.id || 'unknown';
-      const userName = inv.userName || inv.user?.name || 'Unknown User';
-      
-      if (!userStatsMap[userId]) {
-        userStatsMap[userId] = {
-          id: userId,
-          name: userName,
-          count: 0,
-          amount: 0,
-          paid: 0,
-          pending: 0
-        };
-      }
-      userStatsMap[userId].count += 1;
-      userStatsMap[userId].amount += inv.amount;
-      
-      if (inv.status === 'Paid') {
-        userStatsMap[userId].paid += 1;
-      } else if (inv.status === 'Pending') {
-        userStatsMap[userId].pending += 1;
-      }
-    });
-
-    const userStats = Object.values(userStatsMap).sort((a, b) => b.amount - a.amount);
+  const calculateStats = (data) => {
+    const totalInvoices = data.length;
+    const paidInvoices = data.filter(inv => inv.status === 'Paid').length;
+    const pendingInvoices = data.filter(inv => inv.status === 'Pending').length;
+    const totalAmount = data.reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0);
 
     setStats({
       totalInvoices,
       paidInvoices,
       pendingInvoices,
-      totalAmount,
-      userStats
+      totalAmount
     });
   };
 
-  // Prepare data for charts
-  const prepareStatusData = () => {
-    return [
-      { name: 'Paid', value: stats.paidInvoices },
-      { name: 'Pending', value: stats.pendingInvoices }
-    ];
-  };
+  const COLORS = ['#00C49F', '#FFBB28'];
+  const prepareStatusData = () => ([
+    { name: 'Paid', value: stats.paidInvoices },
+    { name: 'Pending', value: stats.pendingInvoices }
+  ]);
 
   const prepareMonthlyData = () => {
-    const monthlyData = {};
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    
-    invoices.forEach(invoice => {
-      const date = new Date(invoice.date);
-      const month = months[date.getMonth()];
-      
-      if (!monthlyData[month]) {
-        monthlyData[month] = 0;
-      }
-      monthlyData[month] += invoice.amount;
+    const months = Array.from({ length: 12 }, (_, i) =>
+      new Date(0, i).toLocaleString('default', { month: 'long' })
+    );
+    const monthly = {};
+
+    invoices.forEach(inv => {
+      const month = new Date(inv.date).getMonth();
+      monthly[month] = (monthly[month] || 0) + (parseFloat(inv.amount) || 0);
     });
 
-    return months.map(month => ({
-      name: month,
-      amount: monthlyData[month] || 0
+    return months.map((name, idx) => ({
+      name,
+      amount: monthly[idx] || 0
     }));
   };
-
-  // Group by day of week
-  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const dayOfWeekData = invoices.reduce((acc, invoice) => {
-    const day = new Date(invoice.date).getDay();
-    const dayName = daysOfWeek[day];
-    
-    if (!acc[dayName]) {
-      acc[dayName] = 0;
-    }
-    acc[dayName] += invoice.amount;
-    
-    return acc;
-  }, {});
 
   const prepareDayOfWeekData = () => {
-    return daysOfWeek.map(day => ({
-      name: day,
-      amount: dayOfWeekData[day] || 0
+    const dayMap = {};
+    invoices.forEach(inv => {
+      const day = new Date(inv.date).toLocaleString('default', { weekday: 'long' });
+      dayMap[day] = (dayMap[day] || 0) + (parseFloat(inv.amount) || 0);
+    });
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    return days.map(name => ({
+      name,
+      amount: dayMap[name] || 0
     }));
   };
 
-  // Top users chart data
-  const prepareTopUsersData = () => {
-    // Take top 5 users by amount
-    return stats.userStats.slice(0, 5).map(user => ({
-      name: user.name,
-      amount: user.amount
-    }));
-  };
-
-  // Colors for pie chart
-  const COLORS = ['#0088FE', '#FF8042'];
-  const USER_COLORS = ['#8884d8', '#83a6ed', '#8dd1e1', '#82ca9d', '#a4de6c'];
-
-  if (loading) return <div className="flex justify-center items-center h-screen">Loading analytics...</div>;
-  if (error) return <div className="text-red-500 text-center p-4">{error}</div>;
+  if (loading) return <div className="text-center p-10">Loading analytics...</div>;
+  if (error) return <div className="text-red-600 text-center">{error}</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Invoice Analytics</h1>
-      
-      {/* Stats Overview */}
+      <h1 className="text-3xl font-bold mb-6 text-center">📊 Analytics Dashboard</h1>
+
+      {/* Stats Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-lg font-semibold text-gray-700">Total Invoices</h2>
-          <p className="text-2xl font-bold text-blue-600">{stats.totalInvoices}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-lg font-semibold text-gray-700">Paid Invoices</h2>
-          <p className="text-2xl font-bold text-green-600">{stats.paidInvoices}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-lg font-semibold text-gray-700">Pending Invoices</h2>
-          <p className="text-2xl font-bold text-orange-600">{stats.pendingInvoices}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-lg font-semibold text-gray-700">Total Amount</h2>
-          <p className="text-2xl font-bold text-purple-600">${stats.totalAmount.toFixed(2)}</p>
-        </div>
+        <StatCard title="Total Invoices" value={stats.totalInvoices} color="text-blue-600" />
+        <StatCard title="Paid" value={stats.paidInvoices} color="text-green-600" />
+        <StatCard title="Pending" value={stats.pendingInvoices} color="text-orange-600" />
+        <StatCard title="Total Amount" value={`₹${stats.totalAmount.toFixed(2)}`} color="text-purple-600" />
       </div>
-      
+
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Status Pie Chart */}
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Invoice Status</h2>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={prepareStatusData()}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                >
-                  {prepareStatusData().map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        
-        {/* Monthly Bar Chart */}
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Monthly Revenue</h2>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={prepareMonthlyData()}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        <ChartCard title="Invoice Status">
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={prepareStatusData()}
+                dataKey="value"
+                outerRadius={100}
+                label
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="amount" fill="#8884d8" name="Amount ($)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        
-        {/* Day of Week Bar Chart */}
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Revenue by Day of Week</h2>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={prepareDayOfWeekData()}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="amount" fill="#82ca9d" name="Amount ($)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        
-        {/* Top Users Bar Chart */}
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Top Users by Revenue</h2>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={prepareTopUsersData()}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="amount" fill="#8884d8" name="Amount ($)">
-                  {prepareTopUsersData().map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={USER_COLORS[index % USER_COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-      
-      {/* User Analytics Table */}
-      <div className="bg-white p-4 rounded-lg shadow mt-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">User Activity</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white">
-            <thead>
-              <tr>
-                <th className="py-2 px-4 border-b">User</th>
-                <th className="py-2 px-4 border-b">Invoices Count</th>
-                <th className="py-2 px-4 border-b">Paid</th>
-                <th className="py-2 px-4 border-b">Pending</th>
-                <th className="py-2 px-4 border-b">Total Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stats.userStats.map((user, idx) => (
-                <tr key={idx}>
-                  <td className="py-2 px-4 border-b">{user.name}</td>
-                  <td className="py-2 px-4 border-b text-center">{user.count}</td>
-                  <td className="py-2 px-4 border-b text-center">{user.paid}</td>
-                  <td className="py-2 px-4 border-b text-center">{user.pending}</td>
-                  <td className="py-2 px-4 border-b text-right">${user.amount.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                {prepareStatusData().map((_, idx) => (
+                  <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="Monthly Spending">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={prepareMonthlyData()}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="amount" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="Spending by Day">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={prepareDayOfWeekData()}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="amount" fill="#82ca9d" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
       </div>
     </div>
   );
 };
+
+const StatCard = ({ title, value, color }) => (
+  <div className="bg-white shadow rounded-lg p-4 text-center">
+    <h3 className="text-lg font-semibold">{title}</h3>
+    <p className={`text-2xl font-bold ${color}`}>{value}</p>
+  </div>
+);
+
+const ChartCard = ({ title, children }) => (
+  <div className="bg-white shadow rounded-lg p-6">
+    <h2 className="text-xl font-semibold mb-4">{title}</h2>
+    {children}
+  </div>
+);
 
 export default Analytics;

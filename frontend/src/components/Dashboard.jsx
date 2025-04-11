@@ -4,6 +4,7 @@ import { Brain, LogOut, User, Settings, FileText, CreditCard, Home } from 'lucid
 import FileUpload from './Fileupload'; 
 import supabase from '../config/superbaseClient';
 import '../styles/Dashboard.css'; // Import your CSS file for styling
+import logo from '../assets/ico2.png'; // Import your logo image
 
 function Dashboard() {
   const [fullName, setFullName] = useState('');
@@ -136,8 +137,10 @@ function Dashboard() {
     <div className="dashboard-container">
       <div className="dashboard-sidebar">
         <div className="sidebar-header">
-          <Brain className="w-8 h-8 text-white" />
-          <h1 className="text-xl font-bold text-white">InvoSync</h1>
+          <div className='sidebar-logo-container'>
+            <img src={logo} alt="" className="sidebar-logo" />
+            <span className="logo-text">InvoSync</span>
+          </div>
         </div>
 
         <nav className="sidebar-nav">
