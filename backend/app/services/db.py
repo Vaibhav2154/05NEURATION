@@ -1,8 +1,10 @@
+import os
 from supabase import create_client
+from dotenv import load_dotenv
 
-url = "your-supabase-url"
-key = "your-supabase-key"
+load_dotenv()
+
+url = os.getenv("SUPABASE_URL")
+key = os.getenv("SUPABASE_KEY")
+
 supabase = create_client(url, key)
-
-def save_to_db(data):
-    supabase.table("bills").insert(data).execute()
