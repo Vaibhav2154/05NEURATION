@@ -15,6 +15,7 @@ def allowed_file(filename):
 
 @upload_bp.route("/upload", methods=["POST"])
 def upload_file():
+<<<<<<< HEAD
     try:
         # Check if the file is in the request
         if "file" not in request.files:
@@ -44,3 +45,9 @@ def upload_file():
     except Exception as e:
         # Handle unexpected errors
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
+=======
+    file = request.files["file"]
+    filepath = "test1.png"
+    file.save(filepath)
+    return jsonify({"message": "File uploaded successfully", "filepath": filepath})
+>>>>>>> cd7cf312622a978b1e5254111486d2e75b0cd5a4
