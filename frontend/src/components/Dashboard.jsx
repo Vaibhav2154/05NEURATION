@@ -8,7 +8,8 @@ import { useEffect, useState } from 'react';
 function Dashboard() {
   const [fullName, setFullName] = useState('');
   const [totalBills, setTotalBills] = useState(0);
-  const [monthlySpending, setMonthlySpending] = useState(0);
+  const [totalSpending, setTotalSpending] = useState(0);
+  const [topVendors, setTopVendors] = useState([]);
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -46,29 +47,65 @@ function Dashboard() {
       }
     };
 
-    const fetchMonthlySpending = async () => {
+    const fetchTotalSpending = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser(); // Get the current user
         if (user) {
           const { data, error } = await supabase
-            .from('invoices') 
-            .select('amount')
-            .eq('user_id', user.id) // Filter by the user's ID
-            .gte('date', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-01`) // Start of the current month
-            .lte('date', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-31`); // End of the current month
+            .from('invoices') // Replace 'invoices' with your actual table name
+            .select('amount') // Replace 'amount' with the column storing the bill amount
+            .eq('user_id', user.id); // Filter by the user's ID
+    
           if (error) throw error;
-          // Calculate the total spending
-          const totalSpending = data.reduce((sum, bill) => sum + bill.amount, 0);
-          setMonthlySpending(totalSpending); // Set the monthly spending
+    
+          // Filter out invalid or null amounts and calculate the total spending
+          const totalSpending = data
+            .filter(bill => bill.amount !== null && !isNaN(Number(bill.amount))) // Ensure valid numbers
+            .reduce((sum, bill) => sum + Number(bill.amount), 0);
+    
+          setTotalSpending(totalSpending); // Set the total spending
         }
       } catch (error) {
-        console.error('Error fetching monthly spending:', error.message);
+        console.error('Error fetching total spending:', error.message);
       }
     };
 
+    const fetchTopVendors = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser(); // Get the current user
+        if (user) {
+          const { data, error } = await supabase
+            .from('invoices') // Replace 'invoices' with your actual table name
+            .select('vendor, amount') // Replace 'vendor' and 'amount' with your actual column names
+            .eq('user_id', user.id); // Filter by the user's ID
+    
+          if (error) throw error;
+    
+          // Group by vendor and calculate total spending per vendor
+          const vendorTotals = data.reduce((acc, bill) => {
+            if (bill.vendor && bill.amount) {
+              acc[bill.vendor] = (acc[bill.vendor] || 0) + Number(bill.amount);
+            }
+            return acc;
+          }, {});
+    
+          // Sort vendors by total spending and get the top 3
+          const topVendors = Object.entries(vendorTotals)
+            .sort((a, b) => b[1] - a[1]) // Sort by total spending (descending)
+            .slice(0, 3); // Get the top 3 vendors
+    
+          setTopVendors(topVendors); // Set the top vendors in state
+        }
+      } catch (error) {
+        console.error('Error fetching top vendors:', error.message);
+      }
+    };
+    
+
     fetchUserName();
     fetchTotalBills();
-    fetchMonthlySpending();
+    fetchTotalSpending();
+    fetchTopVendors(); // Call the function to fetch total spending
   }, []); 
 
 
@@ -145,8 +182,19 @@ function Dashboard() {
               <p className="stat-value">3</p>
             </div> */}
             <div className="stat-card">
-              <h3 className="stat-title">Monthly Spending</h3>
-              <p className="stat-value">{monthlySpending}</p>
+              <h3 className="stat-title">Total Spending</h3>
+              <p className="stat-value">{totalSpending}</p>
+            </div>
+            <div className="stat-card" style={{ width: '200%' }}>
+              <h3 className="stat-title">Top vendors</h3>
+              <p className="stat-value"></p>
+              <ul className="stat-value">
+                {topVendors.map(([vendor, total], index) => (
+                <li key={index}>
+                {vendor}
+                </li>
+                ))}
+            </ul>
             </div>
             {/* <div className="stat-card">
               <h3 className="stat-title">Saved This Month</h3>
