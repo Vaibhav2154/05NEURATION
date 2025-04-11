@@ -11,7 +11,7 @@ function LandingPage() {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
 
-            <img src={logo} className="logo-icon" />
+            <img src={logo} className="logo-icon" id='alpha_logo'/>
           </div>
         </div>
       </nav>
@@ -19,10 +19,9 @@ function LandingPage() {
       {/* Hero Section */}
       <div className="container">
         <div className="hero-section">
-          <div className="logo-container">
-            <Brain className="logo-icon" />
+          {/* <div className="logo-container"> */}
             <h1 className="logo-text">InvoSync</h1>
-          </div>
+          {/* </div> */}
           <h2 className="hero-subtitle">
             AI-Powered Bill Management Made Simple
           </h2>
