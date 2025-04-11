@@ -1,87 +1,65 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Brain, ArrowLeft } from 'lucide-react';
+  import  {supabase } from '../config/supabaseClient';
 
 function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simple validation
+
     if (!email || !password) {
       setError('Please fill in all fields');
       return;
     }
-    
-    // For demo purposes, we'll just redirect to dashboard
-    // In a real app, you would authenticate with a backend
-    setError('');
-    console.log('Signing in with:', email);
-    navigate('/dashboard');
+
+    try {
+      setLoading(true);
+      setError('');
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      console.log('Sign in successful:', data);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error signing in:', error);
+      setError(error.message || 'An error occurred during sign in');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <Link to="/" className="flex items-center text-blue-500 mb-6 hover:text-blue-700">
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Home
-        </Link>
-        
-        <div className="flex justify-center mb-6">
-          <Brain className="w-10 h-10 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-800 ml-2">InvoSync</h1>
-        </div>
-        
-        <h2 className="text-2xl font-bold text-center mb-6">Sign In to Your Account</h2>
-        
-        {error && <div className="error-message">{error}</div>}
-        
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
-              className="form-input"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="form-input"
-            />
-          </div>
-          
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center">
-              <input type="checkbox" id="remember" className="mr-2" />
-              <label htmlFor="remember" className="text-sm text-gray-600">Remember me</label>
-            </div>
-            <a href="#" className="text-sm text-blue-600 hover:text-blue-800">Forgot password?</a>
-          </div>
-          
-          <button type="submit" className="auth-button">Sign In</button>
-        </form>
-        
-        <div className="text-center mt-6">
-          <p className="text-gray-600">
-            Don't have an account? <Link to="/signup" className="text-blue-600 hover:text-blue-800">Sign Up</Link>
-          </p>
-        </div>
-      </div>
+    <div>
+      <h1>Sign In</h1>
+      {error && <p>{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Signing In...' : 'Sign In'}
+        </button>
+      </form>
+      <Link to="/signup">Don't have an account? Sign Up</Link>
     </div>
   );
 }
