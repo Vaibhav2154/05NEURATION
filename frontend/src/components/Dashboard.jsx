@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Brain, LogOut, User, Settings, FileText, CreditCard, Home } from 'lucide-react';
-
+import FileUpload from './Fileupload'; 
 function Dashboard() {
   return (
     <div className="dashboard-container">
@@ -21,6 +21,10 @@ function Dashboard() {
             <FileText className="w-5 h-5" />
             <span>Documents</span>
           </Link>
+          <Link to="#" className="sidebar-link">
+            <Settings className="w-5 h-5" />
+            <span>Bills</span>
+          </Link>
           <Link to="/analytics" className="sidebar-link">
             <CreditCard className="w-5 h-5" />
             <span>Analytics</span>
@@ -33,6 +37,8 @@ function Dashboard() {
             <Settings className="w-5 h-5" />
             <span>Settings</span>
           </Link>
+
+        
         </nav>
         
         <div className="sidebar-footer">
@@ -52,6 +58,10 @@ function Dashboard() {
             <div className="user-avatar">JD</div>
           </div>
         </header>
+        <div>
+          <FileUpload className="w-6 h-6 text-blue-600" />
+          <h2 className="upload-title">Upload Your Bills</h2>
+        </div>
         
         <div className="dashboard-content">
           <div className="stats-grid">

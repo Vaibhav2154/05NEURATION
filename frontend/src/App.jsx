@@ -7,6 +7,7 @@ import Dashboard from './components/Dashboard';
 import Documents from './components/Documents';
 import Templates from './components/Templates';
 import Analytics from './components/Analytics';
+import FileUpload from './components/Fileupload';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/documents" element={<Documents />} />
         <Route path="/templates" element={<Templates />} />
         <Route path="/analytics" element={<Analytics />} />
+        
       </Routes>
     </Router>
   );
