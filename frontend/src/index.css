@@ -36,7 +36,7 @@
   height: 20rem;
   color: white;
   position: relative;
-  top: 1%;
+  left: 0rem;
   
 }
 
@@ -140,6 +140,16 @@
   .features-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+#alpha_logo{
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+h2{
+  color: black;
 }
 
 /* Feature Card */

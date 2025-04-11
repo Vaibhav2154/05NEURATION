@@ -35,14 +35,14 @@ function SignUp() {
       <div className="auth-card">
         <Link to="/" className="flex items-center text-blue-500 mb-6 hover:text-blue-700">
           <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Home
+          {/* Back to Home */}
         </Link>
         
-        <div className="flex justify-center mb-6">
+        {/* <div className="flex justify-center mb-6">
           <Brain className="w-10 h-10 text-blue-600" />
           <h1 className="text-2xl font-bold text-gray-800 ml-2">InvoSync</h1>
         </div>
-        
+         */}
         <h2 className="text-2xl font-bold text-center mb-6">Create Your Account</h2>
         
         {error && <div className="error-message">{error}</div>}
