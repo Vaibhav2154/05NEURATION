@@ -27,7 +27,8 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 supabase_service: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 app = Flask(__name__)
-CORS(app=app)
+CORS(app, supports_credentials=True)
+
 
 # Configure Gemini
 if not GOOGLE_API_KEY:
