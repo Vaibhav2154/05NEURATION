@@ -73,13 +73,13 @@ Extract the following fields from the invoice text below:
 Return the result as a JSON object.
 If a field is not found, use an empty string.
 Example Output:
-{{
-  "invoice_number": "INV-001",
-  "vendor": "ABC Pvt Ltd",
-  "amount": "\u20b95000",
-  "tax": "\u20b9500",
-  "date": "2025-04-01"
-}}
+    {{
+    "invoice_number": "INV-001",
+    "vendor": "ABC Pvt Ltd",
+    "amount": "\u20b95000",
+    "tax": "\u20b9500",
+    "date": "2025-04-01"
+    }}
 Input Text:
 {text}
 """

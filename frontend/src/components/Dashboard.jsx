@@ -125,7 +125,7 @@ function Dashboard() {
             <Home className="w-5 h-5" />
             <span>Dashboard</span>
           </Link>
-          <Link to="/documents" className="sidebar-link">
+          <Link to="/documents" className="sidebar-link" >
             <FileText className="w-5 h-5" />
             <span>Documents</span>
           </Link>
