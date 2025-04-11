@@ -1,0 +1,128 @@
+.docs-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.docs-title {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2563eb;
+  margin-bottom: 3rem;
+}
+
+.docs-message {
+  text-align: center;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.docs-error {
+  text-align: center;
+  color: red;
+  font-weight: 500;
+}
+
+.invoice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.invoice-card {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.invoice-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.invoice-header h2 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.invoice-detail {
+  font-size: 0.9rem;
+  color: #6b0120;
+}
+
+.invoice-footer {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  background-color: rgb(227, 220, 220);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+}
+
+.invoice-footer .label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.invoice-footer .value {
+  font-weight: bold;
+  color: #10b981;
+}
+.back-button {
+  background: #3b82f6;
+  border: none;
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  width: 70px;
+  height: 2.0rem;
+  align-items: left;
+  padding: 1px;
+  border-radius: 0.5rem;
+}
+
+.invoice-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.edit-btn,
+.delete-btn,
+.save-btn,
+.cancel-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.edit-btn {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #ef4444;
+  color: white;
+}
+
+.save-btn {
+  background-color: #10b981;
+  color: white;
+  margin-right: 8px;
+}
+
+.cancel-btn {
+  background-color: #9ca3af;
+  color: white;
+}
