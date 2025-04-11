@@ -2,7 +2,34 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Brain, LogOut, User, Settings, FileText, CreditCard, Home } from 'lucide-react';
 import FileUpload from './Fileupload'; 
+import supabase from '../config/superbaseClient';
+import { useEffect, useState } from 'react';
+
 function Dashboard() {
+  const [fullName, setFullName] = useState('');
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser(); // Get the current user
+        if (user) {
+          const { data, error } = await supabase
+            .from('profile') // Replace 'profile' with your actual table name
+            .select('username') // Replace 'username' with the column storing the full name
+            .eq('id', user.id)
+            .single();
+
+          if (error) throw error;
+          setFullName(data.username); // Set the fetched name
+        }
+      } catch (error) {
+        console.error('Error fetching user name:', error.message);
+      }
+    };
+
+    fetchUserName();
+  }, []); 
+
+
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
@@ -52,11 +79,11 @@ function Dashboard() {
       {/* Main Content */}
       <div className="dashboard-main">
         <header className="dashboard-header">
-          <h1 className="text-2xl font-bold">Welcome to your Dashboard</h1>
-          <div className="user-profile">
+          <h1 className="text-2xl font-bold">Welcome, {fullName || 'User'}!</h1>
+          {/* <div className="user-profile">
             <span className="user-name">John Doe</span>
             <div className="user-avatar">JD</div>
-          </div>
+          </div> */}
         </header>
         <div>
           <FileUpload className="w-6 h-6 text-blue-600" />
