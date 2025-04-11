@@ -12,7 +12,11 @@ env/
 ENV/
 .venv/
 .ENV/
+<<<<<<< HEAD
 .env
+=======
+vision.json
+>>>>>>> 3fb081452ea1b347b8cbba976d5e7395aa7f2d82
 # IDEs
 .vscode/
 .idea/
