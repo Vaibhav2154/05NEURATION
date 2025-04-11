@@ -96,12 +96,12 @@ function SignUp() {
             />
           </div>
           
-          <div className="flex items-center mb-6">
+          {/* <div className="flex items-center mb-6">
             <input type="checkbox" id="terms" className="mr-2" />
             <label htmlFor="terms" className="text-sm text-gray-600">
               I agree to the <a href="#" className="text-blue-600 hover:text-blue-800">Terms of Service</a> and <a href="#" className="text-blue-600 hover:text-blue-800">Privacy Policy</a>
             </label>
-          </div>
+          </div> */}
           
           <button type="submit" className="auth-button">Create Account</button>
         </form>

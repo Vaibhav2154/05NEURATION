@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logo from '../assets/logo.jpg';
 import { Brain, FileText, Zap, Shield, ArrowRight, Bot } from 'lucide-react';
 
 function LandingPage() {
@@ -9,8 +10,8 @@ function LandingPage() {
       <nav className="container py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            //Logo to be added
-            <Brain className="w-8 h-8 text-white" />
+
+            <img src={logo} className="logo-icon" />
           </div>
         </div>
       </nav>

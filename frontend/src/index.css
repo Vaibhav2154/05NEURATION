@@ -32,9 +32,12 @@
 }
 
 .logo-icon {
-  width: 4rem;
-  height: 4rem;
+  width: 20rem;
+  height: 20rem;
   color: white;
+  position: relative;
+  top: 1%;
+  
 }
 
 .logo-text {
@@ -435,3 +438,4 @@
   font-weight: 600;
   color: #1f2937;
 }
+
