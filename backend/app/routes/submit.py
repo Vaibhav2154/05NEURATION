@@ -11,7 +11,3 @@ def submit():
     excel_path = fill_template(data)
     save_to_db(data)
     return jsonify({"message": "Data submitted", "excel": excel_path})
-
-    except Exception as e:
-        # Handle unexpected errors
-        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500

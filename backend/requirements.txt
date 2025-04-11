@@ -16,3 +16,4 @@ openpyxl
 supabase
 python-dotenv
 google-generativeai
+google-cloud-vision

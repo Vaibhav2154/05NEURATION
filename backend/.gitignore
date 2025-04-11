@@ -12,7 +12,7 @@ env/
 ENV/
 .venv/
 .ENV/
-
+vision.json
 # IDEs
 .vscode/
 .idea/

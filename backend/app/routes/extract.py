@@ -10,7 +10,3 @@ def extract():
     text = extract_text(data["filepath"])
     extracted = extract_fields(text)
     return jsonify(extracted)
-
-    except Exception as e:
-        # Handle unexpected errors
-        return jsonify({"error": str(e)}), 500
