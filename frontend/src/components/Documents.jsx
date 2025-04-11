@@ -3,6 +3,7 @@ import QuickLRU from '@alloc/quick-lru';
 import { useAuth } from './authcontext';
 import supabase from '../config/superbaseClient';
 import '../styles/Docs.css';
+import InvoiceExport from './Invoiceexport';
 
 const lruCache = new QuickLRU({ maxSize: 100 });
 
@@ -100,6 +101,7 @@ const Docs = () => {
   return (
     <div className="docs-container">
       <button className="back-button" onClick={() => window.history.back()}>Back</button>
+      {/* <InvoiceExport/> */}
       <h1 className="docs-title">My Uploaded Invoices</h1>
 
       {loading && <p className="docs-message">Loading invoices...</p>}

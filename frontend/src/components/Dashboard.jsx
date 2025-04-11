@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Brain, LogOut, User, Settings, FileText, CreditCard, Home } from 'lucide-react';
-import FileUpload from './Fileupload'; 
+import FileUpload from './Fileupload';
 import supabase from '../config/superbaseClient';
 import '../styles/Dashboard.css'; // Import your CSS file for styling
 import logo from '../assets/ico2.png'; // Import your logo image
@@ -145,7 +145,7 @@ function Dashboard() {
 
         <nav className="sidebar-nav">
           <Link to="/dashboard" className="sidebar-link active">
-            <Home className="w-5 h-5" /><span>Dashboard</span>
+            <Home className="w-5 h-5" /><span>Home</span>
           </Link>
           <Link to="/documents" className="sidebar-link">
             <FileText className="w-5 h-5" /><span>Documents</span>
@@ -168,7 +168,6 @@ function Dashboard() {
       <div className="dashboard-main">
         <header className="dashboard-header">
           <h1 className="text-2xl font-bold">Welcome, {fullName || 'User'}!</h1>
-
           <div className="user-profile">
             <div className="user-info" onClick={() => setShowProfile(!showProfile)}>
               <div className="user-avatar">{fullName?.[0]?.toUpperCase() || 'U'}</div>
@@ -179,12 +178,16 @@ function Dashboard() {
               <div className="profile-dropdown">
                 {!editingProfile ? (
                   <>
-                    <h3>👤 Profile</h3>
+                    <h3>Profile</h3>
                     <p><strong>Username:</strong> {profile?.username}</p>
                     <p><strong>Email:</strong> {profile?.email}</p>
                     <p><strong>Phone:</strong> {profile?.phone}</p>
                     <p><strong>Company:</strong> {profile?.company}</p>
                     <button className="edit-btn" onClick={() => setEditingProfile(true)}>Edit Profile</button>
+                    <Link to="/" className="sidebar-link logout-btn">
+                      <LogOut className="w-5 h-7" />
+                      <span>Logout</span>
+                    </Link>
                   </>
                 ) : (
                   <div className="edit-profile-form">

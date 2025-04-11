@@ -1,4 +1,5 @@
 import { useAuth } from "./authcontext";
+import '../styles/Docs.css'
 
 export default function InvoiceExport() {
   const { user } = useAuth();
@@ -9,11 +10,11 @@ export default function InvoiceExport() {
   };
 
   return (
-    <div className="flex gap-4">
-      <button onClick={() => downloadInvoices('excel')} className="btn">
+    <div className="invoice-export-container">
+      <button onClick={() => downloadInvoices('excel')} className="export-button">
         Download Excel
       </button>
-      <button onClick={() => downloadInvoices('pdf')} className="btn">
+      <button onClick={() => downloadInvoices('pdf')} className="export-button">
         Download PDF
       </button>
     </div>
