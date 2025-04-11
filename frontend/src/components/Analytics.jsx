@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import supabase from '../config/superbaseClient';
 import { useAuth } from '../components/authcontext';
+import '../styles/Analytics.css'; // 👈 Import the custom CSS
+import '../styles/Dashboard.css'; // 👈 Import the custom CSS for dashboard
+
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
 
 const Analytics = () => {
-  const { user } = useAuth(); // Assumes useAuth gives you `user`
+  const { user } = useAuth();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,6 +58,7 @@ const Analytics = () => {
   };
 
   const COLORS = ['#00C49F', '#FFBB28'];
+
   const prepareStatusData = () => ([
     { name: 'Paid', value: stats.paidInvoices },
     { name: 'Pending', value: stats.pendingInvoices }
@@ -90,42 +94,23 @@ const Analytics = () => {
     }));
   };
 
-  if (loading) return <div className="text-center p-10">Loading analytics...</div>;
-  if (error) return <div className="text-red-600 text-center">{error}</div>;
+  if (loading) return <div className="loading">Loading analytics...</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">📊 Analytics Dashboard</h1>
+    <div className="container">
+      <button className="back-button" onClick={() => window.history.back()}>Back</button>
+      <h1 className="dashboard-title">Analytics Dashboard</h1>
 
-      {/* Stats Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid">
         <StatCard title="Total Invoices" value={stats.totalInvoices} color="text-blue-600" />
         <StatCard title="Paid" value={stats.paidInvoices} color="text-green-600" />
         <StatCard title="Pending" value={stats.pendingInvoices} color="text-orange-600" />
         <StatCard title="Total Amount" value={`₹${stats.totalAmount.toFixed(2)}`} color="text-purple-600" />
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <ChartCard title="Invoice Status">
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={prepareStatusData()}
-                dataKey="value"
-                outerRadius={100}
-                label
-              >
-                {prepareStatusData().map((_, idx) => (
-                  <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
+      <div className="grid grid-cols-1 lg:grid-cols-2">
+      
         <ChartCard title="Monthly Spending">
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={prepareMonthlyData()}>
@@ -157,15 +142,15 @@ const Analytics = () => {
 };
 
 const StatCard = ({ title, value, color }) => (
-  <div className="bg-white shadow rounded-lg p-4 text-center">
-    <h3 className="text-lg font-semibold">{title}</h3>
-    <p className={`text-2xl font-bold ${color}`}>{value}</p>
+  <div className="stat-card">
+    <h3 className="stat-title">{title}</h3>
+    <p className={`stat-value ${color}`}>{value}</p>
   </div>
 );
 
 const ChartCard = ({ title, children }) => (
-  <div className="bg-white shadow rounded-lg p-6">
-    <h2 className="text-xl font-semibold mb-4">{title}</h2>
+  <div className="chart-card">
+    <h2 className="chart-title">{title}</h2>
     {children}
   </div>
 );

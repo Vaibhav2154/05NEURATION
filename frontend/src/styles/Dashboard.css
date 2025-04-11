@@ -62,3 +62,9 @@
   width: 1200px;
   height: 600px;
 }
+.upload-title{
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  font-size: 1.5rem;
+}

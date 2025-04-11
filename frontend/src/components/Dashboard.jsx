@@ -150,11 +150,11 @@ function Dashboard() {
           <Link to="/documents" className="sidebar-link">
             <FileText className="w-5 h-5" /><span>Documents</span>
           </Link>
-          <Link to="#" className="sidebar-link">
-            <Settings className="w-5 h-5" /><span>Bills</span>
-          </Link>
           <Link to="/analytics" className="sidebar-link">
             <CreditCard className="w-5 h-5" /><span>Analytics</span>
+          </Link>
+          <Link to="#" className="sidebar-link">
+            <Settings className="w-5 h-5" /><span>Bills</span>
           </Link>
         </nav>
 
@@ -203,23 +203,9 @@ function Dashboard() {
             )}
           </div>
         </header>
-
-        <div>
-          <FileUpload className="w-6 h-6 text-blue-600" />
-          <h2 className="upload-title">Upload Your Bills</h2>
-        </div>
-
         <div className="dashboard-content">
-          <div className="stats-grid">
-            <div className="stat-card">
-              <h3 className="stat-title">Total Bills</h3>
-              <p className="stat-value">{totalBills}</p>
-            </div>
-            <div className="stat-card">
-              <h3 className="stat-title">Total Spending</h3>
-              <p className="stat-value">₹{totalSpending}</p>
-            </div>
-            <div className="stat-card" style={{ width: '200%' }}>
+          <div className="stats-grid-home">
+            <div className="stat-card-home" style={{ width: '200%' }}>
               <h3 className="stat-title">Top vendors</h3>
               <ul className="stat-value">
                 {topVendors.map(([vendor], index) => (
@@ -229,6 +215,14 @@ function Dashboard() {
             </div>
           </div>
         </div>
+        <div className="upload-title">
+          <h2>Upload Your Bills</h2>
+        </div>
+        <div>
+          <FileUpload className="w-6 h-6 text-blue-600" />
+        </div>
+
+
       </div>
     </div>
   );
