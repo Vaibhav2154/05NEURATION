@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Upload, CheckCircle, AlertCircle } from 'lucide-react';
 import '../styles/Fileupload.css';
 import { useAuth } from './authcontext';
+import InvoiceExport from './Invoiceexport';
 
 export default function FileUpload() {
   const { user } = useAuth();
@@ -95,6 +96,7 @@ export default function FileUpload() {
           </div>
         )}
       </div>
+      <InvoiceExport/>
     </div>
   );
 }
