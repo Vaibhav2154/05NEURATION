@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, CheckCircle, AlertCircle } from 'lucide-react';
+import '../styles/Fileupload.css'; // Import your CSS file for styling
+
 
 export default function FileUpload() {
   const [file, setFile] = useState(null);
@@ -42,57 +44,56 @@ export default function FileUpload() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white/10 backdrop-blur-lg rounded-xl p-6">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-full">
-          <label
-            htmlFor="file-upload"
-            className="flex flex-col items-center justify-center w-full h-32 border-2 border-blue-300 border-dashed rounded-lg cursor-pointer bg-white/5 hover:bg-white/10 transition-colors"
-          >
-            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <Upload className="w-10 h-10 text-blue-200 mb-2" />
-              <p className="text-sm text-blue-200">
-                {file ? file.name : 'Click to upload or drag and drop'}
-              </p>
-            </div>
-            <input
-              id="file-upload"
-              type="file"
-              className="hidden"
-              onChange={handleFileChange}
-              accept=".pdf,.doc,.docx,.txt,.csv"
-            />
-          </label>
-        </div>
-
-        <button
-          onClick={handleUpload}
-          disabled={!file || uploadStatus.status === 'uploading'}
-          className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-            !file || uploadStatus.status === 'uploading'
-              ? 'bg-blue-800 text-blue-200 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
-          }`}
-        >
-          {uploadStatus.status === 'uploading' ? 'Uploading...' : 'Upload File'}
-        </button>
-
-        {uploadStatus.status !== 'idle' && (
-          <div
-            className={`flex items-center gap-2 text-sm ${
-              uploadStatus.status === 'success' ? 'text-green-400' : 'text-red-400'
-            }`}
-          >
-            {uploadStatus.status === 'success' ? (
-              <CheckCircle className="w-5 h-5" />
-            ) : (
-              <AlertCircle className="w-5 h-5" />
-            )}
-            <span>{uploadStatus.message}</span>
+    <div className="file-upload-container">
+  <div className="file-upload-inner">
+    <div className="w-full">
+      <label htmlFor="file-upload" className="file-upload-dropzone">
+        <div className="file-upload-content">
+          <Upload className="file-upload-icon" />
+          <div className="file-upload-text-container">            
+          <p className="file-upload-text">
+            {file ? file.name : 'Click to upload or drag and drop'}
+          </p>
           </div>
-        )}
-      </div>
+        </div>
+        <input
+          id="file-upload"
+          type="file"
+          className="hidden"
+          onChange={handleFileChange}
+          accept=".pdf,.doc,.docx,.txt,.csv"
+        />
+      </label>
     </div>
+
+    <button
+      onClick={handleUpload}
+      disabled={!file || uploadStatus.status === 'uploading'}
+      className={`file-upload-button ${
+        !file || uploadStatus.status === 'uploading'
+          ? 'disabled'
+          : 'enabled'
+      }`}
+    >
+      {uploadStatus.status === 'uploading' ? 'Uploading...' : 'Upload File'}
+    </button>
+
+    {uploadStatus.status !== 'idle' && (
+      <div
+        className={`upload-status ${
+          uploadStatus.status === 'success' ? 'upload-success' : 'upload-error'
+        }`}
+      >
+        {uploadStatus.status === 'success' ? (
+          <CheckCircle className="w-5 h-5" />
+        ) : (
+          <AlertCircle className="w-5 h-5" />
+        )}
+        <span>{uploadStatus.message}</span>
+      </div>
+    )}
+  </div>
+</div>
   );
 }
 
