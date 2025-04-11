@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logo from '../assets/logo.jpg';
 import { Brain, FileText, Zap, Shield, ArrowRight, Bot } from 'lucide-react';
 
 function LandingPage() {
@@ -9,8 +10,8 @@ function LandingPage() {
       <nav className="container py-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            //Logo to be added
-            <Brain className="w-8 h-8 text-white" />
+
+            <img src={logo} className="logo-icon" id='alpha_logo'/>
           </div>
         </div>
       </nav>
@@ -18,10 +19,9 @@ function LandingPage() {
       {/* Hero Section */}
       <div className="container">
         <div className="hero-section">
-          <div className="logo-container">
-            <Brain className="logo-icon" />
+          {/* <div className="logo-container"> */}
             <h1 className="logo-text">InvoSync</h1>
-          </div>
+          {/* </div> */}
           <h2 className="hero-subtitle">
             AI-Powered Bill Management Made Simple
           </h2>

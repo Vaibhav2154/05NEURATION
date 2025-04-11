@@ -32,9 +32,12 @@
 }
 
 .logo-icon {
-  width: 4rem;
-  height: 4rem;
+  width: 20rem;
+  height: 20rem;
   color: white;
+  position: relative;
+  left: 0rem;
+  
 }
 
 .logo-text {
@@ -137,6 +140,16 @@
   .features-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+#alpha_logo{
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+h2{
+  color: black;
 }
 
 /* Feature Card */
@@ -435,3 +448,4 @@
   font-weight: 600;
   color: #1f2937;
 }
+

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-  import  {supabase } from '../config/supabaseClient';
+import { Link, useNavigate } from 'react-router-dom';// Corrected import path
+import supabase from '../config/superbaseClient';
 
 function SignIn() {
   const [email, setEmail] = useState('');
@@ -29,7 +29,7 @@ function SignIn() {
       if (error) throw error;
 
       console.log('Sign in successful:', data);
-      navigate('/dashboard');
+      navigate('/dashboard'); // Redirect to dashboard on successful login
     } catch (error) {
       console.error('Error signing in:', error);
       setError(error.message || 'An error occurred during sign in');
@@ -39,27 +39,56 @@ function SignIn() {
   };
 
   return (
-    <div>
-      <h1>Sign In</h1>
-      {error && <p>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Signing In...' : 'Sign In'}
-        </button>
-      </form>
-      <Link to="/signup">Don't have an account? Sign Up</Link>
+    <div className="auth-container">
+      <div className="auth-card">
+        <Link to="/" className="flex items-center text-blue-500 mb-6 hover:text-blue-700">
+          <span className="w-5 h-5 mr-2">←</span> {/* Replaced ArrowLeft with a simple arrow */}
+          Back to Home
+        </Link>
+
+        <h2 className="text-black">Sign In to Your Account</h2>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="form-input"
+            />
+          </div>
+
+          <button type="submit" className="auth-button" disabled={loading}>
+            {loading ? 'Signing In...' : 'Sign In'}
+          </button>
+        </form>
+
+        <div className="text-center mt-6">
+          <p className="text-gray-600">
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-blue-600 hover:text-blue-800">
+              Sign Up
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
