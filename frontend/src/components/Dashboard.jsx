@@ -7,6 +7,9 @@ import { useEffect, useState } from 'react';
 
 function Dashboard() {
   const [fullName, setFullName] = useState('');
+  const [totalBills, setTotalBills] = useState(0);
+  const [monthlySpending, setMonthlySpending] = useState(0);
+
   useEffect(() => {
     const fetchUserName = async () => {
       try {
@@ -26,8 +29,49 @@ function Dashboard() {
       }
     };
 
+    const fetchTotalBills = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser(); // Get the current user
+        if (user) {
+          const { count, error } = await supabase
+            .from('invoices') // Replace 'invoices' with your actual table name
+            .select('*', { count: 'exact' }) // Fetch the count of rows
+            .eq('user_id', user.id); // Filter by the user's ID
+    
+          if (error) throw error;
+          setTotalBills(count); // Set the total number of bills for the user
+        }
+      } catch (error) {
+        console.error('Error fetching total bills:', error.message);
+      }
+    };
+
+    const fetchMonthlySpending = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser(); // Get the current user
+        if (user) {
+          const { data, error } = await supabase
+            .from('invoices') 
+            .select('amount')
+            .eq('user_id', user.id) // Filter by the user's ID
+            .gte('date', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-01`) // Start of the current month
+            .lte('date', `${new Date().getFullYear()}-${new Date().getMonth() + 1}-31`); // End of the current month
+          if (error) throw error;
+          // Calculate the total spending
+          const totalSpending = data.reduce((sum, bill) => sum + bill.amount, 0);
+          setMonthlySpending(totalSpending); // Set the monthly spending
+        }
+      } catch (error) {
+        console.error('Error fetching monthly spending:', error.message);
+      }
+    };
+
     fetchUserName();
+    fetchTotalBills();
+    fetchMonthlySpending();
   }, []); 
+
+
 
 
   return (
@@ -56,14 +100,14 @@ function Dashboard() {
             <CreditCard className="w-5 h-5" />
             <span>Analytics</span>
           </Link>
-          <Link to="#" className="sidebar-link">
+          {/* <Link to="#" className="sidebar-link">
             <User className="w-5 h-5" />
             <span>Profile</span>
           </Link>
           <Link to="#" className="sidebar-link">
             <Settings className="w-5 h-5" />
             <span>Settings</span>
-          </Link>
+          </Link> */}
 
         
         </nav>
@@ -94,23 +138,23 @@ function Dashboard() {
           <div className="stats-grid">
             <div className="stat-card">
               <h3 className="stat-title">Total Bills</h3>
-              <p className="stat-value">12</p>
+              <p className="stat-value">{totalBills}</p>
             </div>
-            <div className="stat-card">
+            {/* <div className="stat-card">
               <h3 className="stat-title">Upcoming Payments</h3>
               <p className="stat-value">3</p>
-            </div>
+            </div> */}
             <div className="stat-card">
               <h3 className="stat-title">Monthly Spending</h3>
-              <p className="stat-value">$1,245</p>
+              <p className="stat-value">{monthlySpending}</p>
             </div>
-            <div className="stat-card">
+            {/* <div className="stat-card">
               <h3 className="stat-title">Saved This Month</h3>
               <p className="stat-value">$320</p>
-            </div>
+            </div> */}
           </div>
           
-          <div className="recent-section">
+          {/* <div className="recent-section">
             <h2 className="section-title">Recent Bills</h2>
             <div className="bills-list">
               <div className="bill-item">
@@ -138,7 +182,7 @@ function Dashboard() {
                 <p className="bill-amount">$45.30</p>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
