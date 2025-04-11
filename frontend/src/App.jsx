@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UserPlus, LogIn, Mail, Lock, User, ArrowRight } from 'lucide-react';
-
-
+import './App.css';
+import '/output.css';
 function App() {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
