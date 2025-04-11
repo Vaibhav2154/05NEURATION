@@ -1,5 +1,10 @@
 from flask import Blueprint, request, jsonify
-from app.services.template import fill_template, fill_excel_template
+from app.services.template import fill_excel_template
+from app.services.db import save_to_supabase
+
+submit_bp = Blueprint('submit', __name__)
+
+from app.services.template import fill_template
 from app.services.db import supabase
 import os
 
