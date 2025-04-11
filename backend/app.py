@@ -1,4 +1,6 @@
+# File: app.py
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
 import os
 import re
 import json
@@ -9,45 +11,52 @@ from dotenv import load_dotenv
 from datetime import datetime
 from pdf2image import convert_from_path
 import tempfile
+from supabase import create_client, Client
+import uuid
+
 
 # Load environment variables
 load_dotenv()
 
+SUPABASE_URL = os.getenv("VITE_SUPABASE_URL")
+SUPABASE_ANON_KEY = os.getenv("VITE_SUPABASE_KEY")
+SUPABASE_SERVICE_KEY = os.getenv("VITE_SUPABASE_SERVICE_KEY")
+
+
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+supabase_service: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
 app = Flask(__name__)
+CORS(app=app)
 
 # Configure Gemini
-api_key = os.getenv("GOOGLE_API_KEY")
-if not api_key:
+if not GOOGLE_API_KEY:
     raise ValueError("GOOGLE_API_KEY not found in environment variables")
-genai.configure(api_key=api_key)
+genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash')
 
-# Setup folders
 UPLOAD_FOLDER = "uploads"
 OUTPUT_FOLDER = "output"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-# Allowed file extensions
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
-
-# Initialize EasyOCR
 reader = easyocr.Reader(['en'], gpu=False)
 
-# Check allowed extensions
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# OCR for images
 def extract_text_from_image(image_path):
     results = reader.readtext(image_path, detail=0)
     return "\n".join(results)
 
-# OCR for PDFs
 def extract_text_from_pdf(pdf_path):
-    poppler_path = r"C:\poppler\Library\bin"  # <- adjust this to your actual poppler path
+    poppler_path = r"C:\\poppler\\Library\\bin"  # Adjust as needed
     pages = convert_from_path(pdf_path, poppler_path=poppler_path)
-    
     all_text = []
     with tempfile.TemporaryDirectory() as temp_dir:
         for i, page in enumerate(pages):
@@ -57,8 +66,6 @@ def extract_text_from_pdf(pdf_path):
             all_text.append(text)
     return "\n".join(all_text)
 
-
-# Use Gemini to extract fields
 def extract_invoice_fields(text):
     prompt = f"""
 Extract the following fields from the invoice text below:
@@ -67,10 +74,8 @@ Extract the following fields from the invoice text below:
 - date
 - amount
 - tax
-
 Return the result as a JSON object.
 If a field is not found, use an empty string.
-
 Example Output:
 {{
   "invoice_number": "INV-001",
@@ -79,7 +84,6 @@ Example Output:
   "tax": "₹500",
   "date": "2025-04-01"
 }}
-
 Input Text:
 {text}
 """
@@ -87,47 +91,58 @@ Input Text:
     cleaned = re.sub(r'```json|```', '', response.text).strip()
     return json.loads(cleaned)
 
-# Save to Excel
-def save_to_excel(data):
-    filename = f"invoice_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-    filepath = os.path.join(OUTPUT_FOLDER, filename)
-    df = pd.DataFrame([data])
-    df.to_excel(filepath, index=False)
-    return filepath
-
 @app.route('/')
 def home():
     return "Invoice Processing API is running. Use POST /extract to process invoices."
 
 @app.route('/extract', methods=['POST'])
 def handle_extract():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file provided"}), 400
-
-    file = request.files['file']
-    filename = file.filename.lower()
-
-    if not allowed_file(filename):
-        return jsonify({"error": "Unsupported file format"}), 400
-
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(filepath)
-
     try:
-        if filename.endswith('.pdf'):
-            ocr_text = extract_text_from_pdf(filepath)
-        else:
-            ocr_text = extract_text_from_image(filepath)
+        if 'file' not in request.files or 'user_id' not in request.form:
+            print("[Error] Missing file or user_id")
+            return jsonify({"error": "File or user ID missing"}), 400
+
+        file = request.files['file']
+        user_id = request.form['user_id']
+        
+        filename = file.filename.lower()
+        print(f"[Info] Received file: {filename}, user_id: {user_id}")
+
+        if not allowed_file(filename):
+            print("[Error] Unsupported file format")
+            return jsonify({"error": "Unsupported file format"}), 400
+
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(filepath)
+
+        print("[Info] File saved. Running OCR...")
+
+        ocr_text = extract_text_from_pdf(filepath) if filename.endswith('.pdf') else extract_text_from_image(filepath)
+        print("[Info] OCR complete. Extracting fields...")
 
         fields = extract_invoice_fields(ocr_text)
-        excel_path = save_to_excel(fields)
+        print("[Info] Extracted fields:", fields)
 
-        return jsonify({
-            "fields": fields,
-            "excel_file": excel_path
-        })
+        fields['user_id'] = user_id
+        fields['num'] = str(uuid.uuid4())
+
+        response = supabase_service.table("invoices").insert(fields).execute()
+        print("[Info] Supabase raw response:", response)
+
+        if hasattr(response, 'error') and response.error:
+            print("[Error] Supabase insert failed:", response.error)
+            raise Exception(str(response.error))
+
+        if hasattr(response, 'data'):
+            print("[Info] Inserted data:", response.data)
+
+
+        return jsonify({ "fields": fields, "message": "Invoice processed and saved" })
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print("[Exception]", str(e))
+        return jsonify({ "error": str(e) }), 500
+
 
 @app.route('/download', methods=['GET'])
 def download():
