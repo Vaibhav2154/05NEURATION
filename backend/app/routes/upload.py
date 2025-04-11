@@ -1,30 +1,21 @@
 from flask import Blueprint, request, jsonify
 import os
+from werkzeug.utils import secure_filename
 
 upload_bp = Blueprint("upload", __name__, url_prefix='/api')
 
+UPLOAD_FOLDER = "uploads"
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "txt", "pdf"}  # Add allowed file extensions
+
+# Ensure the uploads directory exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @upload_bp.route("/upload", methods=["POST"])
 def upload_file():
-    try:
-        if 'file' not in request.files:
-            return jsonify({"error": "No file part in the request"}), 400
-            
-        file = request.files["file"]
-        
-        if file.filename == '':
-            return jsonify({"error": "No file selected"}), 400
-            
-        # Create uploads directory if it doesn't exist
-        upload_dir = os.path.join(os.getcwd(), "uploads")
-        if not os.path.exists(upload_dir):
-            os.makedirs(upload_dir)
-            
-        filepath = os.path.join(upload_dir, file.filename)
-        file.save(filepath)
-        
-        return jsonify({
-            "message": "File uploaded successfully", 
-            "filepath": filepath
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    file = request.files["file"]
+    filepath = "test1.png"
+    file.save(filepath)
+    return jsonify({"message": "File uploaded successfully", "filepath": filepath})
