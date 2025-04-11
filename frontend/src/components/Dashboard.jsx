@@ -17,13 +17,13 @@ function Dashboard() {
             <Home className="w-5 h-5" />
             <span>Dashboard</span>
           </Link>
-          <Link to="#" className="sidebar-link">
+          <Link to="/documents" className="sidebar-link">
             <FileText className="w-5 h-5" />
-            <span>Bills</span>
+            <span>Documents</span>
           </Link>
-          <Link to="#" className="sidebar-link">
+          <Link to="/analytics" className="sidebar-link">
             <CreditCard className="w-5 h-5" />
-            <span>Payments</span>
+            <span>Analytics</span>
           </Link>
           <Link to="#" className="sidebar-link">
             <User className="w-5 h-5" />
