@@ -13,29 +13,41 @@ function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!name || !email || !password || !confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
-
+  
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
+  
     try {
       setLoading(true);
       setError('');
-
+  
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
-
+  
       if (error) throw error;
+  
+      // Insert into profile table
+      const userId = data?.user?.id;
+      const username = name; // Use the name as the username
 
-      console.log('Sign up successful:', data);
+      if (userId) {
+        const { error: profileError } = await supabase
+          .from('profile')
+          .insert([{ id: userId,email ,username }]);
+  
+        if (profileError) throw profileError;
+      }
+  
+      console.log('Sign up and profile creation successful:', data);
       navigate('/signin');
     } catch (error) {
       console.error('Error signing up:', error);
@@ -44,6 +56,7 @@ function SignUp() {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="auth-container">
