@@ -1,7 +1,9 @@
 import pandas as pd
+from openpyxl import load_workbook
 
-def fill_template(data):
+def fill_excel_template(data):
+    template_path = "template.xlsx"
     df = pd.DataFrame([data])
-    path = "output/invoice.xlsx"
-    df.to_excel(path, index=False)
-    return path
+    output_path = f"output/{data['invoice_number']}.xlsx"
+    df.to_excel(output_path, index=False)
+    return output_path

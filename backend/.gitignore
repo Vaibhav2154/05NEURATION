@@ -12,7 +12,7 @@ env/
 ENV/
 .venv/
 .ENV/
-
+.env
 # IDEs
 .vscode/
 .idea/

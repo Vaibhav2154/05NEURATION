@@ -1,6 +1,8 @@
-import pytesseract
-from PIL import Image
+import easyocr
 
-def extract_text(filepath):
-    image = Image.open(filepath)
-    return pytesseract.image_to_string(image)
+reader = easyocr.Reader(['en'])  # you can add 'hi', 'fr', etc. for multilingual
+
+def extract_text_from_image(image_path):
+    result = reader.readtext(image_path, detail=0)  # detail=0 returns just text
+    text = "\n".join(result)
+    return text
