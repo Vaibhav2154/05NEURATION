@@ -179,10 +179,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📞 Contact
 
-Project Link: [https://github.com/yourusername/autobill](https://github.com/yourusername/autobill)
+Project Link: [InvoSync](https://github.com/Vaibhav2154/05NEURATION)
 
 ## 🙏 Acknowledgments
 
 - OpenAI for GPT models
-- Google for Vision API
-- All open-source libraries used in this project
+- Claude for Suggestions 
+- Easyocr community
