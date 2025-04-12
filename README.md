@@ -3,7 +3,6 @@
 </div>
 </p>
 
-🔗 Access the live demo: [AutoBill Web App](https://autobillai.netlify.app/)  
 <br>
 A powerful AI-driven system that automates the extraction and population of invoice data into predefined templates—streamlining operations for organizations and reducing manual workload.
 
