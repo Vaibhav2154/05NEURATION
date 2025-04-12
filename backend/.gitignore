@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+<<<<<<< HEAD
+.env
+=======
+vision.json
+>>>>>>> 3fb081452ea1b347b8cbba976d5e7395aa7f2d82
+# IDEs
+.vscode/
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Flask specific
+instance/
+*.log
+
+# Uploaded & Output Files
+uploads/
+output/
+
+# Secrets
+.env
+
+# Jupyter
+*.ipynb_checkpoints
+
+# PyInstaller
+*.spec
+dist/
+build/
+
+# Excel temp
+~$*.xls*
+
+# MyPy / Coverage
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Supabase CLI
+.supabase/
+
+# macOS and Linux trash
+.Trash-*/
