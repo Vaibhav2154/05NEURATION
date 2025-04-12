@@ -1,13 +1,6 @@
 <div align="center">
-  <img src="image/Indigo_Modern_AI_Company_Logo.jpg" alt="Company Logo" />
+  <img src="images/image.png" alt="Company Logo" />
 </div>
-
-<p align="center">
-  <img src="image/AutoBill.png" alt="Platform Logo" width="150" height="150" />
-</p>
-
-<p align="center">
-  <img src="image/BillDemo.jpg" alt="Landing Page" />
 </p>
 
 🔗 Access the live demo: [AutoBill Web App](https://autobillai.netlify.app/)  
