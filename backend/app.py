@@ -14,6 +14,8 @@ import tempfile
 from supabase import create_client, Client
 import uuid
 from fpdf import FPDF
+import io
+import requests
 
 # Load environment variables
 load_dotenv()
@@ -108,19 +110,42 @@ def handle_extract():
             print("[Error] Unsupported file format")
             return jsonify({"error": "Unsupported file format"}), 400
 
+        # Save locally for processing
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         file.save(filepath)
+        
+        # Generate a unique filename to prevent collisions
+        unique_filename = f"{user_id}/{uuid.uuid4()}_{filename}"
+        
+        # Upload to Supabase Storage
+        with open(filepath, 'rb') as f:
+            file_content = f.read()
+            
+        # Upload to a bucket named 'invoices'
+        try:
+            upload_response = supabase_service.storage.from_('invoices').upload(
+                unique_filename,
+                file_content
+            )
+            
+            # Get public URL for the file
+            file_url = supabase_service.storage.from_('invoices').get_public_url(unique_filename)
+            print(f"[Info] File uploaded to Supabase Storage: {file_url}")
+        except Exception as e:
+            print(f"[Error] Failed to upload to Supabase Storage: {str(e)}")
+            file_url = ""
 
-        print("[Info] File saved. Running OCR...")
-
+        print("[Info] Running OCR...")
         ocr_text = extract_text_from_pdf(filepath) if filename.endswith('.pdf') else extract_text_from_image(filepath)
         print("[Info] OCR complete. Extracting fields...")
 
         fields = extract_invoice_fields(ocr_text)
         print("[Info] Extracted fields:", fields)
 
+        # Add file_url and other fields to database
         fields['user_id'] = user_id
         fields['num'] = str(uuid.uuid4())
+        fields['file_url'] = file_url  # Store the file URL
 
         response = supabase_service.table("invoices").insert(fields).execute()
         print("[Info] Supabase raw response:", response)
@@ -137,6 +162,61 @@ def handle_extract():
     except Exception as e:
         print("[Exception]", str(e))
         return jsonify({ "error": str(e) }), 500
+
+@app.route('/invoice-file/<num>', methods=['GET'])
+def get_invoice_file(num):
+    try:
+        # Get the invoice record to find the file URL
+        response = supabase_service.table("invoices").select("file_url").eq("num", num).execute()
+        
+        if not response.data:
+            return jsonify({"error": "Invoice not found"}), 404
+            
+        file_url = response.data[0]['file_url']
+        
+        # Return the URL so client can access it directly
+        return jsonify({"file_url": file_url})
+        
+    except Exception as e:
+        print("[Exception]", str(e))
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/download-invoice/<num>', methods=['GET'])
+def download_invoice_file(num):
+    try:
+        # Get the invoice record to find the file URL
+        response = supabase_service.table("invoices").select("file_url,invoice_number").eq("num", num).execute()
+        
+        if not response.data:
+            return jsonify({"error": "Invoice not found"}), 404
+            
+        file_url = response.data[0]['file_url']
+        invoice_number = response.data[0]['invoice_number'] or num
+        
+        # Proxy the file through server (allows adding authentication)
+        file_response = requests.get(file_url)
+        
+        if file_response.status_code != 200:
+            return jsonify({"error": "Failed to retrieve file from storage"}), 500
+        
+        # Determine file extension
+        content_type = file_response.headers.get('Content-Type', '')
+        extension = 'pdf'
+        if 'jpeg' in content_type or 'jpg' in content_type:
+            extension = 'jpg'
+        elif 'png' in content_type:
+            extension = 'png'
+        
+        return send_file(
+            io.BytesIO(file_response.content),
+            mimetype=content_type,
+            as_attachment=True,
+            download_name=f"invoice_{invoice_number}.{extension}"
+        )
+        
+    except Exception as e:
+        print("[Exception]", str(e))
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/download', methods=['GET'])
 def download():
@@ -158,11 +238,10 @@ def export_invoices():
 
     try:
         response = supabase_service.table("invoices").select("*").eq("user_id", user_id).execute()
-        invoices = response.data  # This now works as expected
+        invoices = response.data
     except Exception as e:
         print("[Export Error]", str(e))
         return jsonify({"error": str(e)}), 500
-
 
     filename = f"invoices_{user_id}.{ 'xlsx' if export_format == 'excel' else 'pdf'}"
     path = os.path.join(OUTPUT_FOLDER, filename)
@@ -183,6 +262,21 @@ def export_invoices():
         pdf.output(path)
 
     return send_file(path, as_attachment=True)
+
+@app.route('/user-invoices', methods=['GET'])
+def get_user_invoices():
+    user_id = request.args.get('user_id')
+    
+    if not user_id:
+        return jsonify({"error": "Missing user_id"}), 400
+        
+    try:
+        response = supabase_service.table("invoices").select("*").eq("user_id", user_id).execute()
+        invoices = response.data
+        return jsonify({"invoices": invoices})
+    except Exception as e:
+        print("[Error]", str(e))
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

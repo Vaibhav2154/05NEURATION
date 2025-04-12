@@ -153,7 +153,7 @@ function Dashboard() {
           <Link to="/analytics" className="sidebar-link">
             <CreditCard className="w-5 h-5" /><span>Analytics</span>
           </Link>
-          <Link to="#" className="sidebar-link">
+          <Link to="/getinvoices" className="sidebar-link">
             <Settings className="w-5 h-5" /><span>Bills</span>
           </Link>
         </nav>

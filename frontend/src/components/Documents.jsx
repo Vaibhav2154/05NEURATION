@@ -3,7 +3,6 @@ import QuickLRU from '@alloc/quick-lru';
 import { useAuth } from './authcontext';
 import supabase from '../config/superbaseClient';
 import '../styles/Docs.css';
-import InvoiceExport from './Invoiceexport';
 
 const lruCache = new QuickLRU({ maxSize: 100 });
 

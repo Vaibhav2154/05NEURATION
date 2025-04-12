@@ -9,6 +9,7 @@ import Documents from './components/Documents';
 import Templates from './components/Templates';
 import Analytics from './components/Analytics';
 import FileUpload from './components/Fileupload';
+import InvoiceFileAccess from './components/Getallinvoice';
 
 // Protected route component
 function ProtectedRoute({ children }) {
@@ -71,6 +72,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <FileUpload />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/getinvoices"
+            element={
+              <ProtectedRoute>
+                <InvoiceFileAccess />
               </ProtectedRoute>
             }
           />
