@@ -5,18 +5,26 @@ __pycache__/
 *.pyd
 *.pyc
 *.pdb
-
+# Additional Python virtual environment patterns
+*venv*/
+.Python
+/bin/
+/include/
+/lib/
+/lib64/
+/share/
+/Scripts/
+pyvenv.cfg
+pip-selfcheck.json
 # Virtual Environment
-venv/
+# backend\venv
+venv
+/venv
 env/
 ENV/
 .venv/
 .ENV/
-<<<<<<< HEAD
-.env
-=======
 vision.json
->>>>>>> 3fb081452ea1b347b8cbba976d5e7395aa7f2d82
 # IDEs
 .vscode/
 .idea/
