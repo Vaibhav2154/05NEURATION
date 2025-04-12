@@ -40,19 +40,9 @@ A powerful AI-driven system that automates the extraction and population of invo
 
 ---
 
-## 🧠 Solution Flow<div align="center">
-  <img src="image/Indigo_Modern_AI_Company_Logo.jpg" alt="Company Logo" />
-</div>
 
-<p align="center">
-  <img src="image/AutoBill.png" alt="Platform Logo" width="150" height="150" />
 </p>
 
-<p align="center">
-  <img src="image/BillDemo.jpg" alt="Landing Page" />
-</p>
-
-🔗 Access the live demo: [AutoBill Web App](https://autobillai.netlify.app/)  
 <br>
 A powerful AI-driven system that automates the extraction and population of invoice data into predefined templates—streamlining operations for organizations and reducing manual workload.
 
