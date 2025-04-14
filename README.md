@@ -5,7 +5,6 @@
 </div>
 
 ## 🌟 Overview
-
 **InvoSync** is a next-gen Intelligent Document Processing (IDP) platform that uses OCR and GenAI to read invoices and auto-fill structured formats such as Excel sheets or ERP entries. Designed to eliminate manual data entry, AutoBill ensures faster, more accurate, and scalable document processing.
 
 ## 🎯 Key Features
